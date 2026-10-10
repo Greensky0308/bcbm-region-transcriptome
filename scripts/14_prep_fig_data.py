@@ -55,7 +55,7 @@ meta.loc[(meta["comp"]!="Other")&(meta["comp"]!="Tumor"),"comp2"]="Host"
 meta["comp2"]=meta["comp2"].fillna(meta["comp"])   # Tumor / Host / 各宿主亚类
 g2i={g:i for i,g in enumerate(feat)}
 bk=pd.read_csv(f"{OUT}/03b_region_de_symbols.csv",index_col=0); bk=bk[bk.q<0.05]
-SET=[g for g in bk.index[bk.log2FC<0] if g in g2i]; SETR=[g for g in bk.index[bk.log2FC>0] if g in g2i]
+SET=[g for g in bk.index[bk.log2FC>0] if g in g2i]; SETR=[g for g in bk.index[bk.log2FC<0] if g in g2i]
 cols=[g2i[g] for g in SET]; colsr=[g2i[g] for g in SETR]
 print("bulk小脑↑集 n=",len(SET),"| 大脑↑集 n=",len(SETR))
 

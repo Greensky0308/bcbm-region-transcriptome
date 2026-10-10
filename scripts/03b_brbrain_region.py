@@ -57,7 +57,7 @@ for i in range(M.shape[0]):
     a=M[i][loc=="cerebrum"]; b=M[i][loc=="cerebellum"]
     try: p=mannwhitneyu(a,b,alternative="two-sided")[1]
     except ValueError: p=1.0
-    rows.append((genes[i],a.mean()-b.mean(),p))
+    rows.append((genes[i],b.mean()-a.mean(),p))
 r=pd.DataFrame(rows,columns=["gene","log2FC","p"]).set_index("gene")
 r["q"]=multipletests(r.p,method="fdr_bh")[1]
 r=r.sort_values("q")
