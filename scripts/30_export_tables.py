@@ -65,7 +65,7 @@ S3=pd.concat(rows,ignore_index=True)
 
 # ---------- signature gene set ----------
 feat=set(l.strip() for l in open(f"{OUT}/GSE324453/features.tsv"))
-SET=de.query("q<0.05").query("log2FC>0").copy()
+SET=de.query("q<0.05").query("log2FC<0").copy()
 SET=SET[[g in feat for g in SET.index]]
 S4=SET.reset_index().rename(columns={"index":"Gene"})
 S4=S4[["Gene","log2FC","p","q"]]

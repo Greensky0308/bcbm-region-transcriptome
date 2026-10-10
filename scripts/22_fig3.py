@@ -96,18 +96,25 @@ ax.legend(handles=[plt.Line2D([],[],marker="o",ls="",c=C_CB,label="region-DE gen
                    plt.Line2D([],[],marker="o",ls="",c="0.72",label="other genes")],
           fontsize=6,loc="lower right",handletextpad=0.2)
 
-# (b) 零分布：按脑区分组 vs 200 次平衡随机分组
+# (b) 组间对比 log2FC ≈ 真实脑区效应（代表场景 Δ=0.68）
 ax=fig.add_subplot(gs[0,1]); ax2=ax
-_rndm=float(np.mean(rnd)); _rnds=float(np.std(rnd)); _rndmax=int(np.max(rnd))
-ax.bar([0],[n_reg],width=0.6,color=C_CB,linewidth=0)
-ax.bar([1],[_rndm],width=0.6,color="0.72",linewidth=0)
-ax.errorbar([1],[_rndm],yerr=[_rnds],fmt="none",ecolor="0.35",capsize=3,lw=0.8)
-ax.plot([1],[_rndmax],marker="_",ms=9,mew=1.2,c="0.25")
-ax.text(0,n_reg+1.2,f"{n_reg}",ha="center",va="bottom",fontsize=6.5)
-ax.text(1,_rndm+1.2,f"{_rndm:.1f}",ha="center",va="bottom",fontsize=6.5)
-ax.text(1.07,_rndmax,"max single\ndraw %d"%_rndmax,va="center",ha="left",fontsize=6,color="0.35")
-ax.set_xticks([0,1]); ax.set_xticklabels(["by region\n(cb vs. cbr)","balanced random\nsplit (x200)"],fontsize=6.5)
-ax.set_ylabel("genes at FDR < 0.05"); ax.set_xlim(-0.6,1.9); ax.set_ylim(0,n_reg*1.30)
+_g=np.random.default_rng(0)
+_A=np.concatenate([_g.choice(cb,30,replace=False),_g.choice(cbr,10,replace=False)]); _mA=np.isin(np.arange(N),_A)
+grp=M[:,_mA].mean(1)-M[:,~_mA].mean(1)
+_rb=np.corrcoef(grp,reg_lfc)[0,1]
+_rb_reg=np.corrcoef(grp[sig],reg_lfc[sig])[0,1]
+ax.scatter(reg_lfc[~sig],grp[~sig],s=2,c="0.82",lw=0,rasterized=True)
+ax.scatter(reg_lfc[sig],grp[sig],s=5,c=C_CB,lw=0,rasterized=True,zorder=3)
+ax.plot([-3,3],[-3,3],ls="--",lw=0.6,c="0.6",zorder=1)
+ax.axhline(0,c="0.88",lw=0.5); ax.axvline(0,c="0.88",lw=0.5)
+ax.set_xlim(-3.4,3.0); ax.set_ylim(-3.4,3.0)
+ax.text(0.03,0.97,f"all genes: $r$ = {_rb:.2f}",transform=ax.transAxes,fontsize=6,va="top",color="0.5")
+ax.text(0.03,0.89,f"region-DE genes: $r$ = {_rb_reg:.2f}",transform=ax.transAxes,fontsize=6,va="top",color=C_CB)
+ax.set_xlabel("log$_2$ FC (cerebellum vs. cerebrum)"); ax.set_ylabel("log$_2$ FC (group contrast)")
+ax.legend(handles=[plt.Line2D([],[],marker="o",ls="",c=C_CB,label="region-DE genes"),
+                   plt.Line2D([],[],marker="o",ls="",c="0.72",label="other genes")],
+          fontsize=6,loc="lower right",handletextpad=0.2)
+
 # (c)
 ax=fig.add_subplot(gs[1,0]); ax3=ax
 ax.errorbar(sim["delta"],sim["r"],yerr=sim["sd"],fmt="-o",ms=4,lw=1.2,c=C_CBR,capsize=2)
@@ -115,16 +122,26 @@ ax.set_xlabel("brain-region imbalance between groups\n(Δ cerebellum fraction)")
 ax.set_ylabel("$r$ (group signature vs. region effect)")
 ax.set_ylim(-0.1,1.05); ax.axhline(0,c="0.85",lw=0.5)
 
-# (d) 模拟对比中 DE 基因数：不适定 vs 校正脑区（30 次抽样）
+# (d) 伪发现基因 × 脑区不平衡度（颜色 = 朴素对比 -log10 p）
 ax=fig.add_subplot(gs[1,1]); ax4=ax
-_dd=np.array(dd); _x=np.arange(len(_dd)); _w=0.36
-ax.bar(_x-_w/2,na,width=_w,color="#8B0000",linewidth=0,label="ignoring region")
-ax.bar(_x+_w/2,ad,width=_w,color="#009E73",linewidth=0,label="adjusted for region")
-ax.errorbar(_x-_w/2,na,yerr=nas,fmt="none",ecolor="0.35",capsize=2,lw=0.7)
-ax.errorbar(_x+_w/2,ad,yerr=ads,fmt="none",ecolor="0.35",capsize=2,lw=0.7)
-ax.set_xticks(_x); ax.set_xticklabels(["%.2f"%v for v in _dd],fontsize=6.5)
-ax.set_xlabel("brain-region imbalance (Δ)"); ax.set_ylabel("genes at FDR < 0.05")
-ax.legend(fontsize=6,loc="upper left",handletextpad=0.3)
+KS=[18,22,26,30,34]; nA=40; cols=[]; dl=[]
+for k in KS:
+    g=np.random.default_rng(0); acc=[]
+    for _ in range(10):
+        A=np.concatenate([g.choice(cb,k,replace=False),g.choice(cbr,nA-k,replace=False)]); mA=np.isin(np.arange(N),A)
+        p=ttest_ind(M[:,mA],M[:,~mA],axis=1,equal_var=False)[1]
+        acc.append(-np.log10(p.clip(1e-300)))
+    cols.append(np.mean(acc,axis=0)); dl.append(k/nA-(len(cb)-k)/(N-nA))
+H=np.vstack(cols).T                                   # genes × Δ
+idx=np.where(sig & np.array([not g.startswith("ENSG") for g in genes]))[0]
+idx=idx[np.argsort(-np.abs(reg_lfc[idx]))][:18]      # 真正的脑区 DE 基因
+Ht=H[idx][::-1]                                       # 由下到上：显著性递增
+im=ax.imshow(Ht,aspect="auto",cmap="Blues",vmin=0,vmax=np.percentile(Ht,99))
+ax.set_xticks(range(len(KS))); ax.set_xticklabels([f"{d:.2f}" for d in dl],fontsize=6.5)
+ax.set_yticks(range(len(idx))); ax.set_yticklabels(genes[idx][::-1],fontsize=6)
+ax.set_xlabel("brain-region imbalance (Δ)")
+cb=fig.colorbar(im,ax=ax,fraction=0.045,pad=0.02); cb.set_label("$-\\log_{10}$ $p$",fontsize=6.5); cb.ax.tick_params(labelsize=6.5)
+
 L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
 
 export_figure(fig,basename=f"{IMG}/Fig3_region_confound",formats=["pdf","tif"],dpi=600,

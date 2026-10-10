@@ -58,23 +58,22 @@ ct=pd.crosstab(regn,prim).reindex(REG_ORD)
 _SHORT={"ER+/PR-/HER2+ BC":"ER+/HER2+","ER-/PR-/HER2+ BC":"ER-/HER2+","ER-/PR-/HER2- BC":"TNBC",
         "Melanoma":"Mel","NSCLC":"NSCLC","SCLC":"SCLC","Sarcoma":"Sarc"}
 frac=ct.div(ct.sum(1),axis=0)*100
-_PAL={"SCLC":"#4C72B0","NSCLC":"#55A868","ER-/PR-/HER2- BC":"#8172B2","Melanoma":"#C44E52",
-      "ER+/PR-/HER2+ BC":"#CCB974","ER-/PR-/HER2+ BC":"#64B5CD","Sarcoma":"#8C8C8C"}
-_PORDER=[p for p in ["SCLC","NSCLC","ER-/PR-/HER2- BC","Melanoma","ER+/PR-/HER2+ BC","ER-/PR-/HER2+ BC","Sarcoma"] if p in ct.columns]
-def _txtcol(hexc):
-    r,g,b=mpl.colors.to_rgb(hexc)
-    return "w" if (0.299*r+0.587*g+0.114*b)<0.6 else "k"
-_y=np.arange(len(REG_ORD))
-for _i,reg in enumerate(REG_ORD):
-    _left=0.0
-    for _p in _PORDER:
+BASE=["#4C72B0","#55A868","#8172B2","#C44E52","#CCB974","#64B5CD"]
+def _shades(base,n):
+    b=np.array(mpl.colors.to_rgb(base))
+    return [tuple(1-(1-b)*f) for f in np.linspace(0.30,1.0,n)]
+_y=np.arange(len(REG_ORD)); 
+for _i,(reg,base) in enumerate(zip(REG_ORD,BASE)):
+    _left=0.0; _sh=_shades(base,len(ct.columns))
+    for _j,_p in enumerate(ct.columns):
         _v=frac.loc[reg,_p]
-        ax.barh(_i,_v,left=_left,color=_PAL[_p],height=0.72,linewidth=0)
-        if _v>=12:
-            ax.text(_left+_v/2,_i,_SHORT.get(_p,_p),va="center",ha="center",fontsize=4.8,color=_txtcol(_PAL[_p]))
+        ax.barh(_i,_v,left=_left,color=_sh[_j],height=0.72,linewidth=0)
         _left+=_v
+    _dom=frac.loc[reg].idxmax()
+    ax.text(3,_i,_SHORT.get(_dom,_dom),va="center",ha="left",fontsize=5.5,color="k")
 ax.set_yticks(_y); ax.set_yticklabels(REG_ORD,fontsize=6.3); ax.invert_yaxis()
 ax.set_xlim(0,100); ax.set_xlabel("% of cells")
+
 # (b) 点阵图：簇 × 原发（点大小 = 占比）
 ax=fig.add_subplot(gs[0,1]); ax2=ax
 _leid=leiden.astype(int)
@@ -140,7 +139,7 @@ L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
 
 export_figure(fig,basename=f"{IMG}/Fig5_dual_confound",formats=["pdf","tif"],dpi=600,
               size_inches=(7.09,5.0),grayscale_preview=True)
-# move QA preview PNGs out of the figure directory
+# 预览 PNG 不留在 图/（QA 用，挪到 /tmp）
 import glob, shutil
 os.makedirs(os.path.join(OUT,"fig_qa"), exist_ok=True)
 for _p in glob.glob(f"{IMG}/*.png"):

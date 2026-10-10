@@ -57,7 +57,7 @@ for i in range(M.shape[0]):
     a=M[i][loc=="cerebrum"]; b=M[i][loc=="cerebellum"]
     try: p=mannwhitneyu(a,b,alternative="two-sided")[1]
     except ValueError: p=1.0
-    rows.append((genes[i],b.mean()-a.mean(),p))
+    rows.append((genes[i],a.mean()-b.mean(),p))
 r=pd.DataFrame(rows,columns=["gene","log2FC","p"]).set_index("gene")
 r["q"]=multipletests(r.p,method="fdr_bh")[1]
 r=r.sort_values("q")
@@ -67,10 +67,10 @@ print("  top15:", ", ".join(r.head(15).index))
 r.to_csv(f"{OUT}/03b_region_de.csv")
 print("\n落盘:", f"{OUT}/03b_region_de.csv")
 
-# ENSG -> symbol version (same rows, index replaced) for the downstream scripts
-_h = pd.read_csv(os.path.join(ROOT, "resources", "hgnc_ensembl_symbol.tsv.gz"),
-                 sep="\t", dtype=str).dropna(subset=["ensembl_gene_id"])
-_e2s = dict(zip(_h["ensembl_gene_id"].str.split(".").str[0], _h["symbol"]))
-rs = r.copy(); rs.index = [_e2s.get(g, g) for g in rs.index]
+# ENSG -> symbol（逐行同序，供下游出图/出表用）
+H = os.path.join(ROOT, "resources", "hgnc_ensembl_symbol.tsv.gz")
+h = pd.read_csv(H, sep="\t", dtype=str, low_memory=False).dropna(subset=["ensembl_gene_id"])
+e2s = dict(zip(h["ensembl_gene_id"].str.split(".").str[0], h["symbol"]))
+rs = r.copy(); rs.index = [e2s.get(g, g) for g in rs.index]
 rs.to_csv(f"{OUT}/03b_region_de_symbols.csv")
 print("落盘:", f"{OUT}/03b_region_de_symbols.csv")

@@ -62,14 +62,14 @@ for i in range(Mc.shape[0]):
     a=resid[loc=="cerebrum"]; b=resid[loc=="cerebellum"]
     try: p=mannwhitneyu(a,b,alternative="two-sided")[1]
     except ValueError: p=1.0
-    rows.append((cpm.index[i], beta, b.mean()-a.mean(), p))
+    rows.append((cpm.index[i], beta, a.mean()-b.mean(), p))
 r=pd.DataFrame(rows,columns=["gene","brain_load","log2FC_adj","p"]).set_index("gene")
 r["q"]=multipletests(r.p,method="fdr_bh")[1]; r=r.sort_values("q")
 print(f"\n== 回归掉脑含量后 cerebrum vs cerebellum ==")
 print(f"  残余 DE(q<0.05): {(r.q<0.05).sum()} / {len(r)}")
 sig=r[r.q<0.05]
-print("  小脑高 top12:", ", ".join(sig[sig.log2FC_adj>0].head(12).index))
-print("  大脑高 top12:", ", ".join(sig[sig.log2FC_adj<0].head(12).index))
+print("  小脑高 top12:", ", ".join(sig[sig.log2FC_adj<0].head(12).index))
+print("  大脑高 top12:", ", ".join(sig[sig.log2FC_adj>0].head(12).index))
 print("\n  (对照) 脑负载最高的 8 个基因:", ", ".join(r.sort_values('brain_load',ascending=False).head(8).index))
 r.to_csv(f"{OUT}/03c_region_adjusted.csv")
 print("\n落盘:", f"{OUT}/03c_region_adjusted.csv")

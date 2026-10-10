@@ -128,7 +128,7 @@ L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
 
 export_figure(fig,basename=f"{IMG}/Fig2_snRNA_host",formats=["pdf","tif"],dpi=600,
               size_inches=(7.09,5.0),grayscale_preview=True)
-# move QA preview PNGs out of the figure directory
+# 预览 PNG 不留在 图/（QA 用，挪到 /tmp）
 import glob, shutil
 os.makedirs(os.path.join(OUT,"fig_qa"), exist_ok=True)
 for _p in glob.glob(f"{IMG}/*.png"):

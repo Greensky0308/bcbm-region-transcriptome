@@ -4,7 +4,7 @@
 目标（③2 的单细胞佐证）：脑区(cerebellum vs cerebrum)差异在【肿瘤细胞】还是【宿主脑细胞】？
 本数据集 BC-only、region 与原发不混杂（全 TNBC 队列），是唯一干净的资源。
 
-input: out/GSE324453/{counts.mtx,features.tsv,barcodes.tsv,meta.csv}
+输入：分析/产物/GSE324453/{counts.mtx,features.tsv,barcodes.tsv,meta.csv}
 """
 import os
 ROOT = os.environ.get("BCBM_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

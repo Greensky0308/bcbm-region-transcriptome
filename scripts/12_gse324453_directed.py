@@ -42,8 +42,8 @@ pb=pd.DataFrame(np.vstack(rows),index=pd.MultiIndex.from_tuples(key,names=["samp
 # bulk 脑区 DE 集（log2FC<0 = 小脑↑）
 bk=pd.read_csv(f"{OUT}/03b_region_de_symbols.csv",index_col=0)
 bk=bk[bk["q"]<0.05]
-CBL_SET=[g for g in bk.index[bk["log2FC"]>0] if g in g2i]
-CBR_SET=[g for g in bk.index[bk["log2FC"]<0] if g in g2i]
+CBL_SET=[g for g in bk.index[bk["log2FC"]<0] if g in g2i]
+CBR_SET=[g for g in bk.index[bk["log2FC"]>0] if g in g2i]
 print(f"bulk 小脑↑集 n={len(CBL_SET)} | 大脑↑集 n={len(CBR_SET)}")
 
 def mwu_test(sub, gene_list, label):

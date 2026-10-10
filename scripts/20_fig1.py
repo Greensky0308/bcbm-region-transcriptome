@@ -45,14 +45,14 @@ fig=plt.figure(figsize=(7.09,5.0)); gs=fig.add_gridspec(2,2,wspace=0.20,hspace=0
 ax=fig.add_subplot(gs[0,0]); ax1=ax
 y=-np.log10(de["p"].clip(lower=1e-300)); sig=de["q"]<0.05
 ax.scatter(de["log2FC"][~sig],y[~sig],s=2,c="0.80",lw=0,rasterized=True)
-ax.scatter(de["log2FC"][sig&(de["log2FC"]>0)],y[sig&(de["log2FC"]>0)],s=3,c=C_CB,lw=0,rasterized=True)
-ax.scatter(de["log2FC"][sig&(de["log2FC"]<0)],y[sig&(de["log2FC"]<0)],s=3,c=C_CBR,lw=0,rasterized=True)
+ax.scatter(de["log2FC"][sig&(de["log2FC"]<0)],y[sig&(de["log2FC"]<0)],s=3,c=C_CB,lw=0,rasterized=True)
+ax.scatter(de["log2FC"][sig&(de["log2FC"]>0)],y[sig&(de["log2FC"]>0)],s=3,c=C_CBR,lw=0,rasterized=True)
 for g,(dx,dy,ha) in {"GABRA6":(5,3,"left"),"BARHL2":(4,-4,"left"),"NEUROD1":(4,4,"left"),
                      "RELN":(-4,-1,"right"),"FOXG1":(4,-1,"left")}.items():
     if g in de.index:
         xi=de.loc[g,"log2FC"]; yi=-np.log10(max(de.loc[g,"p"],1e-300))
         ax.annotate(g,(xi,yi),textcoords="offset points",xytext=(dx,dy),fontsize=6.5,ha=ha)
-ax.set_xlabel("log$_2$ FC  (cerebellum vs. cerebrum)"); ax.set_ylabel("$-$log$_{10}$ $p$")
+ax.set_xlabel("log$_2$ FC  (cerebrum vs. cerebellum)"); ax.set_ylabel("$-$log$_{10}$ $p$")
 ax.set_xlim(-3.4,2.6); ax.set_ylim(-1,22)
 ax.text(0.03,0.97,f"{(de['q']<0.05).sum()} DE genes",transform=ax.transAxes,fontsize=6.5,va="top")
 
@@ -98,16 +98,16 @@ ax=fig.add_subplot(gs[1,1]); ax4=ax
 m=adj.reindex(de.index).dropna(subset=["log2FC_adj"])
 ax.scatter(de.loc[m.index,"log2FC"],m["log2FC_adj"],s=2,c="0.65",lw=0,rasterized=True)
 for g,(dx,dy,ha) in {"OLIG2":(5,4,"left"),"FOXG1":(5,-8,"left"),
-                     "RELN":(3,6,"left"),"GABRA6":(-3,-9,"right"),"BARHL2":(5,-2,"left")}.items():
+                     "RELN":(-4,7,"right"),"GABRA6":(-4,-9,"right"),"BARHL2":(5,-2,"left")}.items():
     if g in m.index:
         ax.scatter([de.loc[g,"log2FC"]],[m.loc[g,"log2FC_adj"]],s=16,
-                   c=(C_CB if m.loc[g,"log2FC_adj"]>0 else C_CBR),zorder=3,edgecolor="k",linewidth=0.3)
+                   c=(C_CB if m.loc[g,"log2FC_adj"]<0 else C_CBR),zorder=3,edgecolor="k",linewidth=0.3)
         ax.annotate(g,(de.loc[g,"log2FC"],m.loc[g,"log2FC_adj"]),textcoords="offset points",
                     xytext=(dx,dy),fontsize=6.5,ha=ha)
 ax.axhline(0,c="0.7",lw=0.5); ax.axvline(0,c="0.7",lw=0.5)
 ax.plot([-3,3],[-3,3],ls="--",lw=0.6,c="0.6",zorder=1)   # y=x 参考
 r=np.corrcoef(de.loc[m.index,"log2FC"],m["log2FC_adj"])[0,1]
-ax.set_xlabel("log$_2$ FC (raw)\n(cerebellum vs. cerebrum)"); ax.set_ylabel("log$_2$ FC (adjusted)\n(cerebellum vs. cerebrum)")
+ax.set_xlabel("log$_2$ FC (raw)"); ax.set_ylabel("log$_2$ FC\n(brain-content-adjusted)")
 ax.text(0.03,0.95,f"$r$ = {r:.2f}",transform=ax.transAxes,fontsize=6.5,va="top")
 ax.set_xlim(-3.0,2.5)
 
@@ -115,7 +115,7 @@ L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
 
 export_figure(fig,basename=f"{IMG}/Fig1_bulk_region",formats=["pdf","tif"],dpi=600,
               size_inches=(7.09,5.0),grayscale_preview=True)
-# move QA preview PNGs out of the figure directory
+# 预览 PNG 不留在 图/（QA 用，挪到 /tmp）
 import glob, shutil
 os.makedirs(os.path.join(OUT,"fig_qa"), exist_ok=True)
 for _p in glob.glob(f"{IMG}/*.png"):

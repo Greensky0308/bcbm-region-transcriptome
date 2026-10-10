@@ -43,10 +43,10 @@ def gtex_lfc(reg):
 gl=gtex_lfc("Brain - Cortex")
 
 de=pd.read_csv(f"{OUT}/03b_region_de_symbols.csv",index_col=0)
-bcbm=de["log2FC"]                     # cerebellum - cerebrum
+bcbm=-de["log2FC"]                     # cerebellum - cerebrum
 common=[g for g in de.index if g in gl.index]
 sig=[g for g in common if de.loc[g,"q"]<0.05]
-SET=[g for g in de.query("q<0.05").query("log2FC>0").index if g in gl.index]   # 小脑↑集
+SET=[g for g in de.query("q<0.05").query("log2FC<0").index if g in gl.index]   # 小脑↑集
 r_all=np.corrcoef(bcbm.loc[common],gl.loc[common])[0,1]
 r_sig=np.corrcoef(bcbm.loc[sig],gl.loc[sig])[0,1]
 conc=int((gl.loc[SET]>0).sum()); n=len(SET); pconc=binomtest(conc,n,0.5,alternative="greater").pvalue
@@ -113,7 +113,7 @@ L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
 
 export_figure(fig,basename=f"{IMG}/Fig4_normal_brain_anchor",formats=["pdf","tif"],dpi=600,
               size_inches=(7.09,5.0),grayscale_preview=True)
-# move QA preview PNGs out of the figure directory
+# 预览 PNG 不留在 图/（QA 用，挪到 /tmp）
 import glob, shutil
 os.makedirs(os.path.join(OUT,"fig_qa"), exist_ok=True)
 for _p in glob.glob(f"{IMG}/*.png"):
