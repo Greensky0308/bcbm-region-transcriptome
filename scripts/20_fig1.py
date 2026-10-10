@@ -71,8 +71,8 @@ axb.imshow(np.where(iscb[order],0,1)[None,:],aspect="auto",cmap=mpl.colors.Liste
 axb.set_xticks([]); axb.set_yticks([])
 for s in axb.spines.values(): s.set_visible(False)
 _mask=iscb[order]; _N=len(_mask); _k=int((~_mask).sum())   # 左段=大脑
-axb.text(_k/2/_N, 0.5, "cerebrum", color="w", fontsize=5, ha="center", va="center", transform=axb.transAxes)
-axb.text((_k+_N)/2/_N, 0.5, "cerebellum", color="w", fontsize=5, ha="center", va="center", transform=axb.transAxes)
+axb.text(_k/2/_N, 0.5, "cerebrum", color="w", fontsize=6.0, ha="center", va="center", transform=axb.transAxes)
+axb.text((_k+_N)/2/_N, 0.5, "cerebellum", color="w", fontsize=6.0, ha="center", va="center", transform=axb.transAxes)
 cb=fig.colorbar(im,ax=ax,fraction=0.05,pad=0.03); cb.set_label("row $z$",fontsize=6.5); cb.ax.tick_params(labelsize=6.5)
 
 # (c) 脑区标志逐基因箱线
@@ -91,7 +91,7 @@ ax.set_xticks(pos); ax.set_xticklabels(MK,fontsize=6.5)
 ax.set_ylabel("log$_2$ CPM")
 ax.legend(handles=[plt.Line2D([],[],marker="s",ls="",mfc=C_CB,mec=C_CB,label="cerebellum",alpha=0.7),
                    plt.Line2D([],[],marker="s",ls="",mfc=C_CBR,mec=C_CBR,label="cerebrum",alpha=0.7)],
-          fontsize=6.5,loc="upper right",handletextpad=0.2)
+          fontsize=6.0,loc="upper right",handletextpad=0.2)
 
 # (d) 纯度校正
 ax=fig.add_subplot(gs[1,1]); ax4=ax
@@ -108,7 +108,7 @@ ax.axhline(0,c="0.7",lw=0.5); ax.axvline(0,c="0.7",lw=0.5)
 ax.plot([-3,3],[-3,3],ls="--",lw=0.6,c="0.6",zorder=1)   # y=x 参考
 r=np.corrcoef(de.loc[m.index,"log2FC"],m["log2FC_adj"])[0,1]
 ax.set_xlabel("log$_2$ FC (raw)"); ax.set_ylabel("log$_2$ FC\n(brain-content-adjusted)")
-ax.text(0.03,0.95,f"$r$ = {r:.2f}",transform=ax.transAxes,fontsize=6.5,va="top")
+ax.text(0.03,0.95,f"$r$ = {r:.2f}",transform=ax.transAxes,fontsize=6.0,va="top")
 ax.set_xlim(-3.0,2.5)
 
 L(ax1,"a",ax3); L(ax2,"b",ax4); L(ax3,"c",ax1); L(ax4,"d",ax2)
