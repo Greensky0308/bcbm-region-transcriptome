@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """③b 新问法：乳腺癌脑转移 大脑(cerebrum) vs 小脑(cerebellum) 的转录组差异。
-GSE322943 n=100。先查 location×batch 混杂，再 DE + 阳性对照。"""
+GSE322943 n=99。先查 location×batch 混杂，再 DE + 阳性对照。"""
 import os
 ROOT = os.environ.get("BCBM_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import subprocess, collections
@@ -61,7 +61,7 @@ for i in range(M.shape[0]):
 r=pd.DataFrame(rows,columns=["gene","log2FC","p"]).set_index("gene")
 r["q"]=multipletests(r.p,method="fdr_bh")[1]
 r=r.sort_values("q")
-print(f"\n== cerebrum(66) vs cerebellum(34) ==")
+print(f"\n== cerebrum(65) vs cerebellum(34) ==")
 print(f"  DE(q<0.05): {(r.q<0.05).sum()} / {len(r)}")
 print("  top15:", ", ".join(r.head(15).index))
 r.to_csv(f"{OUT}/03b_region_de.csv")
