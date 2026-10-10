@@ -54,7 +54,7 @@ for g,(dx,dy,ha) in {"GABRA6":(5,3,"left"),"BARHL2":(4,-4,"left"),"NEUROD1":(4,4
         ax.annotate(g,(xi,yi),textcoords="offset points",xytext=(dx,dy),fontsize=6.5,ha=ha)
 ax.set_xlabel("log$_2$ FC  (cerebrum vs. cerebellum)"); ax.set_ylabel("$-$log$_{10}$ $p$")
 ax.set_xlim(-3.4,2.6); ax.set_ylim(-1,22)
-ax.text(0.03,0.97,f"{(de['q']<0.05).sum()} DE genes",transform=ax.transAxes,fontsize=6.5,va="top")
+ax.text(0.03,0.97,f"{(de['q']<0.05).sum()} DE genes",transform=ax.transAxes,fontsize=6.0,va="top")
 
 # (b) heatmap
 ax=fig.add_subplot(gs[0,1]); ax2=ax
