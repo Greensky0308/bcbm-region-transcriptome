@@ -20,7 +20,7 @@ Xl=X.multiply(1e4/lib[:,None]).tocsr(); Xl.data=np.log1p(Xl.data); meta=meta.res
 meta["region"]=np.where(meta["sampleDemuxIDstrict"].isin(CEREBELLUM),"cerebellum","cerebrum")
 g2i={g:i for i,g in enumerate(feat)}
 bk=pd.read_csv(f"{OUT}/03b_region_de_symbols.csv",index_col=0); bk=bk[bk["q"]<0.05]
-SET=[g for g in bk.index[bk["log2FC"]<0] if g in g2i]; cols=[g2i[g] for g in SET]
+SET=[g for g in bk.index[bk["log2FC"]>0] if g in g2i]; cols=[g2i[g] for g in SET]
 def pb(mask):
     return {(s,r):np.asarray(Xl[meta.index.get_indexer(idx)].mean(0)).ravel()
             for (s,r),idx in meta[mask].groupby(["sampleDemuxIDstrict","region"]).groups.items()}
