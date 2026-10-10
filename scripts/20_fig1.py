@@ -98,7 +98,7 @@ ax=fig.add_subplot(gs[1,1]); ax4=ax
 m=adj.reindex(de.index).dropna(subset=["log2FC_adj"])
 ax.scatter(de.loc[m.index,"log2FC"],m["log2FC_adj"],s=2,c="0.65",lw=0,rasterized=True)
 for g,(dx,dy,ha) in {"OLIG2":(5,4,"left"),"FOXG1":(5,-8,"left"),
-                     "RELN":(-4,7,"right"),"GABRA6":(-4,-9,"right"),"BARHL2":(5,-2,"left")}.items():
+                     "RELN":(-4,7,"right"),"GABRA6":(0,-10,"center"),"BARHL2":(5,-2,"left")}.items():
     if g in m.index:
         ax.scatter([de.loc[g,"log2FC"]],[m.loc[g,"log2FC_adj"]],s=16,
                    c=(C_CB if m.loc[g,"log2FC_adj"]<0 else C_CBR),zorder=3,edgecolor="k",linewidth=0.3)
